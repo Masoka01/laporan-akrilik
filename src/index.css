@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
+  }
+
+  *,
+  *::before,
+  *::after {
+    @media (prefers-reduced-motion: reduce) {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body {
+    @apply font-body bg-[#e8eef0] text-[#12202a] dark:bg-[#0c1317] dark:text-[#e4eef1];
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    line-height: 1.6;
+  }
+
+  /* Focus visible for keyboard navigation */
+  :focus-visible {
+    @apply outline-none ring-2 ring-[#0b7e88] dark:ring-[#4ccbd3] ring-offset-2 ring-offset-[#e8eef0] dark:ring-offset-[#0c1317];
+  }
+
+  /* Selection colors */
+  ::selection {
+    @apply bg-[#0b7e88]/30 dark:bg-[#4ccbd3]/30;
+  }
+}
+
+@layer components {
+  /* Button system: primary / secondary / tertiary (ghost) / destructive */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-medium rounded-full px-4 h-11 min-w-[44px] cursor-pointer transition-all duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed select-none;
+  }
+  .btn-primary {
+    @apply btn bg-[#0b7e88] dark:bg-[#4ccbd3] text-white dark:text-[#05181a] border border-transparent hover:brightness-105 active:brightness-95 shadow-sm hover:shadow-md;
+  }
+  .btn-secondary {
+    @apply btn bg-[#f6f9fa] dark:bg-[#131c22] text-[#12202a] dark:text-[#e4eef1] border border-[#c7d3d9] dark:border-[#26343c] hover:border-[#8da0aa] dark:hover:border-[#4b5f6a] hover:bg-white dark:hover:bg-[#0e161b] active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-[#12202a] dark:text-[#e4eef1] border border-transparent hover:bg-[#e8eef0] dark:hover:bg-[#0c1317] hover:text-[#0b7e88] dark:hover:text-[#4ccbd3] active:scale-[0.98];
+  }
+  .btn-destructive {
+    @apply btn bg-transparent text-[#a8500b] dark:text-[#e8a04f] border border-transparent hover:bg-[#fef3e8] dark:hover:bg-[#3d2508] hover:text-[#a8500b] dark:hover:text-[#e8a04f] active:scale-[0.98];
+  }
+  .btn-destructive.armed {
+    @apply bg-[#feeae6] dark:bg-[#3d1a1a] text-[#c53030] dark:text-[#fc8181] font-semibold;
+  }
+
+  /* Icon-only button variant (for duplicate, etc.) */
+  .btn-icon {
+    @apply btn p-0 w-11 h-11 min-w-0;
+  }
+
+  /* Input fields */
+  .field {
+    @apply w-full h-[44px] px-3.5 bg-white dark:bg-[#0e161b] border border-[#c7d3d9] dark:border-[#26343c] rounded-lg text-base leading-normal
+         focus:outline-none focus:ring-2 focus:ring-[#0b7e88] dark:focus:ring-[#4ccbd3] focus:border-transparent
+         hover:border-[#8da0aa] dark:hover:border-[#4b5f6a]
+         placeholder:text-[#8da0aa] dark:placeholder:text-[#4b5f6a]
+         transition-colors duration-150 ease-out;
+  }
+  .field-sm {
+    @apply field h-[40px] text-sm px-3;
+  }
+
+  /* Readonly/display field */
+  .field-readonly {
+    @apply w-full h-[44px] px-3.5 bg-white/50 dark:bg-[#0e161b]/50 border border-[#c7d3d9] dark:border-[#26343c] rounded-lg text-base leading-normal text-[#566873] dark:text-[#8fa3ad] flex items-center;
+  }
+
+  /* Cards & surfaces */
+  .card {
+    @apply bg-[#f6f9fa] dark:bg-[#131c22] border border-[#c7d3d9] dark:border-[#26343c] rounded-xl p-4 shadow-sm;
+  }
+  .card-elevated {
+    @apply card shadow-md;
+  }
+
+  /* Section titles - friendlier, less shouty */
+  .section-title {
+    @apply font-body font-semibold text-lg tracking-normal text-[#12202a] dark:text-[#e4eef1];
+  }
+
+  /* Field labels - readable, not condensed */
+  .field-label {
+    @apply block font-body font-medium text-sm tracking-normal text-[#566873] dark:text-[#8fa3ad] mb-1.5;
+  }
+
+  /* Status pill for save indicator */
+  .status-pill {
+    @apply inline-flex items-center gap-2 h-10 px-3 rounded-full text-sm font-medium border transition-colors;
+  }
+
+  /* Empty state */
+  .empty-state {
+    @apply p-6 border-2 border-dashed border-[#c7d3d9] dark:border-[#26343c] rounded-xl text-center;
+  }
+
+  /* Incomplete badge */
+  .badge-incomplete {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border border-[#f6ad55] dark:border-[#e8a04f] text-[#b7791f] dark:text-[#e8a04f] bg-[#fefcbf] dark:bg-[#3d2e0a];
+  }
+}
