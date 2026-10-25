@@ -92,7 +92,7 @@ export function buildText(date, items) {
       segs.push(`${e.a || ph} * ${e.b || ph} = ${e.valid ? e.total : ph} lembar`)
     }
     for (const e of g.potongan.values()) {
-      let seg = `${e.a || ph} * ${e.pl || ph}`
+      let seg = `${e.a || ph} * ${e.pl || ph} mm`
       if (e.count > 1) seg += ` = ${e.count} potongan`
       segs.push(seg)
     }
