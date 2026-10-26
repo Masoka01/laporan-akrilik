@@ -27,7 +27,7 @@ export default function ItemCard({ item, colorOptions = [], onChange, onDuplicat
   const listId = `dl-warna-${item.id}`
 
   return (
-    <article className="card grid gap-4">
+    <article className="card grid gap-3 p-3.5 md:gap-4 md:p-4">
       {/* warna + aksi */}
       <div className="flex items-center gap-2.5 min-w-0">
         <span
@@ -87,7 +87,7 @@ export default function ItemCard({ item, colorOptions = [], onChange, onDuplicat
       )}
 
       {/* ukuran bahan */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-3">
         <label className="grid gap-1.5">
           <span className="field-label">Tebal <span className="font-body font-normal text-[#8da0aa] dark:text-[#4b5f6a]">(mm)</span></span>
           <input
@@ -124,56 +124,59 @@ export default function ItemCard({ item, colorOptions = [], onChange, onDuplicat
       </div>
 
       {/* jenis hasil + jumlah */}
-      <div className="grid gap-3 pt-3 border-t border-dashed border-[#c7d3d9] dark:border-[#26343c]">
-        <div className="inline-flex border border-[#c7d3d9] dark:border-[#26343c] rounded-lg overflow-hidden bg-white dark:bg-[#0e161b]" role="group" aria-label="Jenis hasil">
+      <div className="flex flex-wrap items-center gap-2 pt-2.5 md:gap-3 md:pt-3 border-t border-dashed border-[#c7d3d9] dark:border-[#26343c]">
+        <div className="inline-flex shrink-0 border border-[#c7d3d9] dark:border-[#26343c] rounded-lg overflow-hidden bg-white dark:bg-[#0e161b]" role="group" aria-label="Jenis hasil">
           {['lembar', 'potongan'].map(v => (
             <button
               key={v}
               type="button"
               aria-pressed={item.mode === v}
               onClick={() => handleField('mode', v)}
-              className={`px-4 h-[44px] text-sm font-medium transition-all duration-150 border-0 cursor-pointer ${
+              className={`px-2 md:px-4 h-[44px] text-sm font-medium transition-all duration-150 border-0 cursor-pointer ${
                 item.mode === v
                   ? 'bg-[#0b7e88] dark:bg-[#4ccbd3] text-white dark:text-[#05181a] shadow-sm'
                   : 'text-[#566873] dark:text-[#8fa3ad] hover:text-[#12202a] dark:hover:text-[#e4eef1] hover:bg-[#e8eef0] dark:hover:bg-[#0c1317]'
               } ${v === 'potongan' ? 'border-l border-[#c7d3d9] dark:border-[#26343c]' : ''}`}
             >
-              {v === 'lembar' ? 'Lembar utuh' : 'Potongan'}
+              {v === 'lembar' ? (
+                <>
+                  <span className="md:hidden">Lembar</span>
+                  <span className="hidden md:inline">Lembar utuh</span>
+                </>
+              ) : 'Potongan'}
             </button>
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            {lembar ? (
-              <>
-                <input
-                  className="field max-w-[120px] h-12 text-lg font-semibold"
-                  inputMode="decimal"
-                  aria-label="Jumlah lembar"
-                  placeholder="0"
-                  value={item.lembar}
-                  onChange={e => handleField('lembar', e.target.value)}
-                />
-                <span className="text-[#566873] dark:text-[#8fa3ad] flex-none font-medium">lembar</span>
-              </>
-            ) : (
-              <>
-                <input
-                  className="field max-w-[120px] h-12 text-lg font-semibold"
-                  inputMode="decimal"
-                  aria-label="Panjang potongan"
-                  placeholder="0"
-                  value={item.pl}
-                  onChange={e => handleField('pl', e.target.value)}
-                />
-                <span className="text-[#566873] dark:text-[#8fa3ad] flex-none font-medium">mm</span>
-              </>
-            )}
-          </div>
-          <div className="flex items-center self-center">
-            <Glyph it={item} />
-          </div>
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          {lembar ? (
+            <>
+              <input
+                className="field w-[72px] md:w-[120px] h-11 md:h-12 text-base md:text-lg font-semibold"
+                inputMode="decimal"
+                aria-label="Jumlah lembar"
+                placeholder="0"
+                value={item.lembar}
+                onChange={e => handleField('lembar', e.target.value)}
+              />
+              <span className="text-[#566873] dark:text-[#8fa3ad] flex-none font-medium text-xs md:text-base">lembar</span>
+            </>
+          ) : (
+            <>
+              <input
+                className="field w-[72px] md:w-[120px] h-11 md:h-12 text-base md:text-lg font-semibold"
+                inputMode="decimal"
+                aria-label="Panjang potongan"
+                placeholder="0"
+                value={item.pl}
+                onChange={e => handleField('pl', e.target.value)}
+              />
+              <span className="text-[#566873] dark:text-[#8fa3ad] flex-none font-medium text-xs md:text-base">mm</span>
+            </>
+          )}
+        </div>
+        <div className="hidden min-[370px]:flex items-center shrink-0">
+          <Glyph it={item} className="!w-6 !h-auto md:!w-[30px]" />
         </div>
       </div>
 

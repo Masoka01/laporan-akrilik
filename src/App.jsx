@@ -119,21 +119,22 @@ export default function App() {
   }
 
   return (
-    <div className="max-w-[1040px] mx-auto grid gap-5 md:gap-6 pb-28 md:pb-12 pt-5 md:pt-6 px-3 md:px-0">
+    <div className="max-w-[1040px] mx-auto grid gap-4 md:gap-6 pb-24 md:pb-12 pt-4 md:pt-6 px-3 md:px-0">
       {/* header */}
-      <header className="flex flex-wrap gap-x-6 gap-y-4 items-end justify-between">
+      <header className="flex flex-wrap gap-x-6 gap-y-3 items-end justify-between">
         <div>
-          <h1 className="font-display font-bold text-[32px] md:text-[36px] leading-tight tracking-normal m-0">
+          <h1 className="font-display font-bold text-[28px] md:text-[36px] leading-tight tracking-normal m-0">
             Laporan Akrilik
           </h1>
-          <p className="text-sm text-[#566873] dark:text-[#8fa3ad] mt-1 mb-0 font-body">Pemakaian lembar harian</p>
+          <p className="text-[13px] md:text-sm text-[#566873] dark:text-[#8fa3ad] mt-0.5 md:mt-1 mb-0 font-body">Pemakaian lembar harian</p>
         </div>
-        <div className="flex flex-wrap gap-3 items-end">
+        <div className="flex flex-wrap items-center gap-2 md:items-end md:gap-3">
           <label className="flex flex-col gap-1.5">
-            <span className="field-label">Tanggal</span>
+            <span className="field-label hidden md:block">Tanggal</span>
             <input
               type="date"
-              className="field w-[11.5rem] max-w-full"
+              aria-label="Tanggal"
+              className="field w-[10.5rem] md:w-[11.5rem] max-w-full"
               value={state.date}
               onChange={e => handleDateChange(e.target.value)}
             />
@@ -155,19 +156,20 @@ export default function App() {
       </header>
 
       {/* main grid */}
-      <div className="grid gap-5 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] items-start">
+      <div className="grid gap-4 md:gap-5 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] items-start">
         {/* left: edit column */}
-        <section className="grid gap-4" aria-labelledby="h-items">
+        <section className="grid gap-3 md:gap-4" aria-labelledby="h-items">
           <div className="flex flex-wrap justify-between items-baseline gap-x-3 gap-y-2">
             <h2 className="section-title" id="h-items">Bahan terpakai</h2>
             {state.items.length > 0 && (
-              <span className="text-sm text-[#566873] dark:text-[#8fa3ad] font-body whitespace-nowrap">
-                {state.items.length} bahan · {utuh} utuh · {pot} potongan
+              <span className="text-xs md:text-sm text-[#566873] dark:text-[#8fa3ad] font-body">
+                {state.items.length} bahan
+                <span className="hidden sm:inline"> · {utuh} utuh · {pot} potongan</span>
               </span>
             )}
           </div>
 
-          <div className="grid gap-3">
+          <div className="grid gap-2.5 md:gap-3">
             {state.items.length === 0 ? (
               <div className="empty-state">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="mx-auto mb-3 text-[#0b7e88] dark:text-[#4ccbd3]" aria-hidden="true">
@@ -196,7 +198,7 @@ export default function App() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-3 pt-1">
+          <div className="flex flex-wrap gap-2.5 pt-1">
             <button className="btn-primary" type="button" onClick={handleAddItem}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                 <path d="M12 5v14M5 12h14" />
@@ -210,7 +212,7 @@ export default function App() {
         </section>
 
         {/* right: output column (sticky on desktop) */}
-        <aside className="grid gap-4 md:sticky md:top-4">
+        <aside className="grid gap-3 md:gap-4 md:sticky md:top-4">
           <OutputPanel text={reportText} onCopy={handleCopy} />
           <HistoryPanel
             reports={reports}
