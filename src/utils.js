@@ -67,17 +67,15 @@ export function buildText(date, items) {
     const gk = `${warna.toLowerCase()}|${tebal}`
     let g = index[gk]
     if (!g) {
-      g = { warna, tebal, lembar: new Map(), potongan: new Map() }
+      g = { warna, tebal, lembarTotal: 0, lembarSeen: false, potongan: new Map() }
       index[gk] = g
       groups.push(g)
     }
 
     if (it.mode === 'lembar') {
-      const key = `${t(it.a)}|${t(it.b)}`
-      const entry = g.lembar.get(key) || { a: t(it.a), b: t(it.b), total: 0, valid: false }
+      g.lembarSeen = true
       const n = num(it.lembar)
-      if (n) { entry.total += n; entry.valid = true }
-      g.lembar.set(key, entry)
+      if (n) g.lembarTotal += n
     } else {
       const key = `${t(it.a)}|${t(it.pl)}`
       const entry = g.potongan.get(key) || { a: t(it.a), pl: t(it.pl), count: 0 }
@@ -88,8 +86,8 @@ export function buildText(date, items) {
 
   const lines = groups.map(g => {
     const segs = []
-    for (const e of g.lembar.values()) {
-      segs.push(`${e.a || ph} * ${e.b || ph} NEW = ${e.valid ? e.total : ph} lembar`)
+    if (g.lembarSeen) {
+      segs.push(`NEW = ${g.lembarTotal || ph} lembar`)
     }
     for (const e of g.potongan.values()) {
       let seg = `${e.a || ph} * ${e.pl || ph} mm`
