@@ -89,7 +89,7 @@ export function buildText(date, items) {
   const lines = groups.map(g => {
     const segs = []
     for (const e of g.lembar.values()) {
-      segs.push(`${e.a || ph} * ${e.b || ph} = ${e.valid ? e.total : ph} lembar`)
+      segs.push(`${e.a || ph} * ${e.b || ph} NEW = ${e.valid ? e.total : ph} lembar`)
     }
     for (const e of g.potongan.values()) {
       let seg = `${e.a || ph} * ${e.pl || ph} mm`
