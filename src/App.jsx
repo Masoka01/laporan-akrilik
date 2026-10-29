@@ -1,196 +1,350 @@
-import { useState, useMemo } from 'react'
-import { uid, clone, blankItem, buildText, COLORS, t } from './utils'
-import { useReports } from './hooks/useReports'
-import ItemCard from './components/ItemCard'
-import OutputPanel from './components/OutputPanel'
-import HistoryPanel from './components/HistoryPanel'
-import Toast from './components/Toast'
+import { useState, useMemo } from "react";
+import { uid, clone, blankItem, buildText, COLORS, t } from "./utils";
+import { useReports } from "./hooks/useReports";
+import ItemCard from "./components/ItemCard";
+import OutputPanel from "./components/OutputPanel";
+import HistoryPanel from "./components/HistoryPanel";
+import Toast from "./components/Toast";
 
 const STATUS_TEXT = {
-  new: 'Belum tersimpan',
-  draft: 'Belum tersimpan',
-  saving: 'Menyimpan…',
-  saved: 'Tersimpan',
-  error: 'Gagal, ketuk untuk coba lagi',
-}
+  new: "Belum tersimpan",
+  draft: "Belum tersimpan",
+  saving: "Menyimpan…",
+  saved: "Tersimpan",
+  error: "Gagal — ketuk untuk coba lagi",
+};
+
+const statusDotStyle = {
+  saved: { background: "#22c55e" },
+  saving: { background: "#f59e0b" },
+  error: { background: "#ef4444" },
+  draft: { background: "var(--text-muted)" },
+  new: { background: "var(--border-strong)" },
+};
 
 export default function App() {
   const {
-    reports, state, saveStatus,
-    updateItems, changeDate, loadReport, deleteReport, newReport, flush, retrySave,
-  } = useReports()
+    reports,
+    state,
+    saveStatus,
+    updateItems,
+    changeDate,
+    loadReport,
+    deleteReport,
+    newReport,
+    flush,
+    retrySave,
+  } = useReports();
 
-  const [toastMsg, setToastMsg] = useState(null)
-  const [toastKey, setToastKey] = useState(0)
+  const [toastMsg, setToastMsg] = useState(null);
+  const [toastKey, setToastKey] = useState(0);
 
   function toast(msg) {
-    setToastMsg(msg)
-    setToastKey(k => k + 1)
+    setToastMsg(msg);
+    setToastKey((k) => k + 1);
   }
 
   const reportText = useMemo(
     () => buildText(state.date, state.items),
-    [state.date, state.items]
-  )
+    [state.date, state.items],
+  );
 
-  // derive unique colors for datalist
   const colorOptions = useMemo(() => {
-    const seen = {}
-    const list = []
+    const seen = {};
+    const list = [];
     COLORS.concat(
-      Object.values(reports).flatMap(r => (r.items || []).map(i => t(i.warna)))
-    ).forEach(c => {
-      const k = c.toLowerCase()
-      if (c && !seen[k]) { seen[k] = 1; list.push(c) }
-    })
-    return list
-  }, [reports])
+      Object.values(reports).flatMap((r) =>
+        (r.items || []).map((i) => t(i.warna)),
+      ),
+    ).forEach((c) => {
+      const k = c.toLowerCase();
+      if (c && !seen[k]) {
+        seen[k] = 1;
+        list.push(c);
+      }
+    });
+    return list;
+  }, [reports]);
 
-  // Item operations
   function handleItemChange(id, updated) {
-    updateItems(items => items.map(it => it.id === id ? updated : it))
+    updateItems((items) => items.map((it) => (it.id === id ? updated : it)));
   }
 
   function handleAddItem() {
-    const last = state.items[state.items.length - 1]
-    updateItems(items => [...items, blankItem(last)])
+    const last = state.items[state.items.length - 1];
+    updateItems((items) => [...items, blankItem(last)]);
   }
 
   function handleDuplicate(id) {
-    updateItems(items => {
-      const idx = items.findIndex(it => it.id === id)
-      if (idx < 0) return items
-      const c = clone(items[idx]); c.id = uid()
-      return [...items.slice(0, idx + 1), c, ...items.slice(idx + 1)]
-    })
+    updateItems((items) => {
+      const idx = items.findIndex((it) => it.id === id);
+      if (idx < 0) return items;
+      const c = clone(items[idx]);
+      c.id = uid();
+      return [...items.slice(0, idx + 1), c, ...items.slice(idx + 1)];
+    });
   }
 
   function handleDelete(id) {
-    updateItems(items => items.filter(it => it.id !== id))
+    updateItems((items) => items.filter((it) => it.id !== id));
   }
 
   function handleDateChange(v) {
-    if (!v) return
-    flush(state, reports).then(() => changeDate(v, reports))
+    if (!v) return;
+    flush(state, reports).then(() => changeDate(v, reports));
   }
 
   function handleNewReport() {
     flush(state, reports).then(() => {
-      const msg = newReport(state, reports)
-      if (msg) toast(msg)
-    })
+      const msg = newReport(state, reports);
+      if (msg) toast(msg);
+    });
   }
 
   function handleOpenReport(d) {
     flush(state, reports).then(() => {
-      loadReport(d, reports)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    })
+      loadReport(d, reports);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   }
 
   function handleDeleteReport(d) {
-    deleteReport(d)
+    deleteReport(d);
   }
 
   function handleCopy() {
-    const text = reportText
-    let p
-    try { p = navigator.clipboard.writeText(text) } catch (e) { p = Promise.reject(e) }
+    const text = reportText;
+    let p;
+    try {
+      p = navigator.clipboard.writeText(text);
+    } catch (e) {
+      p = Promise.reject(e);
+    }
     p.then(
-      () => toast('Laporan disalin'),
+      () => toast("Laporan disalin"),
       () => {
-        const el = document.getElementById('out')
-        if (el) { const r = document.createRange(); r.selectNodeContents(el); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r) }
-        toast('Teks terpilih, salin manual')
-      }
-    )
+        const el = document.getElementById("out");
+        if (el) {
+          const r = document.createRange();
+          r.selectNodeContents(el);
+          const s = window.getSelection();
+          s.removeAllRanges();
+          s.addRange(r);
+        }
+        toast("Teks terpilih, salin manual");
+      },
+    );
   }
 
-  const utuh = state.items.filter(i => i.mode === 'lembar').length
-  const pot  = state.items.length - utuh
-
-  // Save status color mapping
-  const statusColors = {
-    saved: 'bg-[#1e7a4f] dark:bg-[#5cc796]',
-    saving: 'bg-[#0b7e88] dark:bg-[#4ccbd3]',
-    error: 'bg-[#a8500b] dark:bg-[#e8a04f]',
-    draft: 'bg-[#8da0aa] dark:bg-[#4b5f6a]',
-    new: 'bg-[#8da0aa] dark:bg-[#4b5f6a]',
-  }
+  const utuh = state.items.filter((i) => i.mode === "lembar").length;
+  const pot = state.items.length - utuh;
 
   return (
-    <div className="max-w-[1040px] mx-auto grid gap-4 md:gap-6 pb-24 md:pb-12 pt-4 md:pt-6 px-3 md:px-0">
-      {/* header */}
-      <header className="flex flex-wrap gap-x-6 gap-y-3 items-end justify-between">
-        <div>
-          <h1 className="font-display font-bold text-[28px] md:text-[36px] leading-tight tracking-normal m-0">
+    <div
+      style={{
+        maxWidth: 1060,
+        margin: "0 auto",
+        display: "grid",
+        gap: 0,
+        paddingBottom: 96,
+      }}
+    >
+      {/* ── Header bar ── */}
+      <header
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "12px 24px",
+          padding: "20px 0 18px",
+          borderBottom: "1px solid var(--border)",
+          marginBottom: 24,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "clamp(22px, 5vw, 30px)",
+              fontWeight: 800,
+              letterSpacing: "-0.03em",
+              lineHeight: 1,
+              color: "var(--text-primary)",
+            }}
+          >
             Laporan Akrilik
           </h1>
-          <p className="text-[13px] md:text-sm text-[#566873] dark:text-[#8fa3ad] mt-0.5 md:mt-1 mb-0 font-body">Pemakaian lembar harian</p>
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: "var(--text-muted)",
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+              paddingBottom: 2,
+            }}
+          >
+            Pemakaian harian
+          </span>
         </div>
-        <div className="flex flex-wrap items-center gap-2 md:items-end md:gap-3">
-          <label className="flex flex-col gap-1.5">
-            <span className="field-label hidden md:block">Tanggal</span>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
+        >
+          <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <span className="field-label" style={{ marginBottom: 0 }}>
+              Tanggal
+            </span>
             <input
               type="date"
               aria-label="Tanggal"
-              className="field w-[10.5rem] md:w-[11.5rem] max-w-full"
+              className="field"
+              style={{ width: 160 }}
               value={state.date}
-              onChange={e => handleDateChange(e.target.value)}
+              onChange={(e) => handleDateChange(e.target.value)}
             />
           </label>
+
           <button
             type="button"
             role="status"
-            className={`status-pill cursor-default ${
-              saveStatus === 'error'
-                ? 'text-[#a8500b] dark:text-[#e8a04f] border-[#a8500b] dark:border-[#e8a04f] bg-[#fef3e8] dark:bg-[#3d2508] cursor-pointer'
-                : 'text-[#566873] dark:text-[#8fa3ad] border-[#c7d3d9] dark:border-[#26343c] bg-white dark:bg-[#0e161b]'
-            }`}
-            onClick={() => saveStatus === 'error' && retrySave(state, reports)}
+            className="status-pill"
+            style={{
+              cursor: saveStatus === "error" ? "pointer" : "default",
+              ...(saveStatus === "error"
+                ? {
+                    borderColor: "var(--danger)",
+                    color: "var(--danger)",
+                    background: "var(--danger-bg)",
+                  }
+                : {}),
+            }}
+            onClick={() => saveStatus === "error" && retrySave(state, reports)}
           >
-            <span className={`w-2 h-2 rounded-full flex-none ${statusColors[saveStatus]}`} />
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                flexShrink: 0,
+                ...statusDotStyle[saveStatus],
+              }}
+            />
             {STATUS_TEXT[saveStatus]}
           </button>
         </div>
       </header>
 
-      {/* main grid */}
-      <div className="grid gap-4 md:gap-5 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] items-start">
-        {/* left: edit column */}
-        <section className="grid gap-3 md:gap-4" aria-labelledby="h-items">
-          <div className="flex flex-wrap justify-between items-baseline gap-x-3 gap-y-2">
-            <h2 className="section-title" id="h-items">Bahan terpakai</h2>
+      {/* ── Main two-column grid ── */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1.3fr) minmax(0, 1fr)",
+          gap: 20,
+          alignItems: "start",
+        }}
+        className="responsive-grid"
+      >
+        {/* Left: items */}
+        <section aria-labelledby="h-items">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              marginBottom: 12,
+            }}
+          >
+            <h2 id="h-items" className="section-title" style={{ margin: 0 }}>
+              Bahan terpakai
+            </h2>
             {state.items.length > 0 && (
-              <span className="text-xs md:text-sm text-[#566873] dark:text-[#8fa3ad] font-body">
-                {state.items.length} bahan
-                <span className="hidden sm:inline"> · {utuh} utuh · {pot} potongan</span>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-muted)",
+                  fontWeight: 500,
+                }}
+              >
+                {state.items.length} item · {utuh} utuh · {pot} potongan
               </span>
             )}
           </div>
 
-          <div className="grid gap-2.5 md:gap-3">
+          <div style={{ display: "grid", gap: 8 }}>
             {state.items.length === 0 ? (
               <div className="empty-state">
-                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="mx-auto mb-3 text-[#0b7e88] dark:text-[#4ccbd3]" aria-hidden="true">
-                  <rect x="10" y="5" width="28" height="38" rx="3" stroke="currentColor" strokeWidth="2.5" />
-                  <path d="M22 11v26M26 11v26" stroke="currentColor" strokeWidth="1.5" opacity="0.45" />
-                  <path d="M15 20h4M15 28h4M29 20h4M29 28h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  style={{
+                    display: "block",
+                    margin: "0 auto 14px",
+                    color: "var(--accent)",
+                    opacity: 0.7,
+                  }}
+                  aria-hidden="true"
+                >
+                  <rect
+                    x="10"
+                    y="5"
+                    width="28"
+                    height="38"
+                    rx="3"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  />
+                  <path
+                    d="M22 11v26M26 11v26"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    opacity="0.4"
+                  />
+                  <path
+                    d="M15 20h4M15 28h4M29 20h4M29 28h4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    opacity="0.6"
+                  />
                 </svg>
-                <strong className="block text-[#12202a] dark:text-[#e4eef1] font-body text-base mb-1.5">
+                <strong
+                  style={{
+                    display: "block",
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                    marginBottom: 6,
+                  }}
+                >
                   Belum ada bahan
                 </strong>
-                <p className="text-[#566873] dark:text-[#8fa3ad] text-sm m-0">
-                  Ketuk &ldquo;Tambah bahan&rdquo; untuk mulai laporan tanggal ini.
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: "var(--text-secondary)",
+                    margin: 0,
+                  }}
+                >
+                  Tambah bahan untuk memulai laporan hari ini.
                 </p>
               </div>
             ) : (
-              state.items.map(item => (
+              state.items.map((item, idx) => (
                 <ItemCard
                   key={item.id}
                   item={item}
+                  index={idx + 1}
                   colorOptions={colorOptions}
-                  onChange={updated => handleItemChange(item.id, updated)}
+                  onChange={(updated) => handleItemChange(item.id, updated)}
                   onDuplicate={() => handleDuplicate(item.id)}
                   onDelete={() => handleDelete(item.id)}
                 />
@@ -198,21 +352,42 @@ export default function App() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2.5 pt-1">
-            <button className="btn-primary" type="button" onClick={handleAddItem}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+          <div
+            style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}
+          >
+            <button
+              className="btn-primary"
+              type="button"
+              onClick={handleAddItem}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
                 <path d="M12 5v14M5 12h14" />
               </svg>
               Tambah bahan
             </button>
-            <button className="btn-secondary" type="button" onClick={handleNewReport}>
+            <button
+              className="btn-secondary"
+              type="button"
+              onClick={handleNewReport}
+            >
               Laporan baru
             </button>
           </div>
         </section>
 
-        {/* right: output column (sticky on desktop) */}
-        <aside className="grid gap-3 md:gap-4 md:sticky md:top-4">
+        {/* Right: output + history */}
+        <aside
+          style={{ display: "grid", gap: 12, position: "sticky", top: 16 }}
+        >
           <OutputPanel text={reportText} onCopy={handleCopy} />
           <HistoryPanel
             reports={reports}
@@ -223,22 +398,34 @@ export default function App() {
         </aside>
       </div>
 
-      {/* bottom bar (phone only) */}
+      {/* Bottom bar — mobile only */}
       <div
-        className="fixed left-0 right-0 bottom-0 md:hidden border-t border-[#c7d3d9] dark:border-[#26343c] bg-[#e8eef0] dark:bg-[#0c1317]"
+        className="mobile-bottom-bar"
         style={{
-          paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))',
-          paddingRight: 'max(16px, env(safe-area-inset-right, 0px))',
-          paddingTop: '12px',
-          paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          borderTop: "1px solid var(--border)",
+          background: "var(--bg-page)",
+          paddingTop: 12,
+          paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
+          paddingLeft: "max(16px, env(safe-area-inset-left, 0px))",
+          paddingRight: "max(16px, env(safe-area-inset-right, 0px))",
+          display: "none",
         }}
       >
-        <button className="btn-primary w-full h-[52px] text-base" type="button" onClick={handleCopy}>
+        <button
+          className="btn-primary"
+          style={{ width: "100%", height: 52, fontSize: 16 }}
+          type="button"
+          onClick={handleCopy}
+        >
           Salin laporan
         </button>
       </div>
 
       <Toast key={toastKey} message={toastMsg} />
     </div>
-  )
+  );
 }
